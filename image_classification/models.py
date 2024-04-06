@@ -2,6 +2,7 @@ from os.path import join
 
 from keras import Input, layers, models
 from keras.losses import CategoricalCrossentropy
+from keras.models import Model, Sequential
 from keras.optimizers import RMSprop
 
 from image_classification.datasets import get_train_dataset
@@ -47,16 +48,20 @@ def get_trained_model():
     return model
 
 
-def save_trained_model_to_file(path: str, name: str, overwrite=True) -> str:
+def save_trained_model_to_file(
+    path: str,
+    name: str,
+    overwrite=True,
+) -> Sequential | Model:
     """保存训练好的模型到文件，默认保存为 .keras 压缩格式
 
     Args:
-        path (str): 文件路径
-        name (str): 文件名
-        overwrite (bool, optional): 是否覆盖同名模型文件，默认覆盖.
+        - path (str): 文件路径
+        - name (str): 文件名
+        - overwrite (bool, optional): 是否覆盖同名模型文件，默认覆盖.
 
     Returns:
-        str: 保存过的路径
+        - Sequential | Model: 训练好的模型
     """
     model, dataset = get_compiled_model(), get_train_dataset()
     model = train_model(model, dataset)
@@ -64,4 +69,4 @@ def save_trained_model_to_file(path: str, name: str, overwrite=True) -> str:
 
     model.save(file_path, overwrite=overwrite)
 
-    return file_path
+    return model
