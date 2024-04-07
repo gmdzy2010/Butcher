@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "cnn-demo"
-version = "0.1.0"
-description = "CNN学习记录"
+name = "dl-demo"
+version = "0.2.0"
+description = "深度学习DEMO"
 authors = ["Yang Li <gmdzy2010@126.com>"]
 readme = "README.md"
 
