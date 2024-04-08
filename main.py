@@ -3,28 +3,49 @@ from os.path import exists, join
 from dotenv import dotenv_values
 from keras.models import load_model
 
-from image_classification.datasets import get_test_dataset
-from image_classification.models import (
-    save_trained_model_to_file,
-)
+from image_classification import datasets as ic_dataset
+from image_classification.models import compile_and_train_model as ic_train
+from text_classification import datasets as tc_dataset
+from text_classification.models import compile_and_train_model as tc_train
+from tools.model_dumper import evaluate_model, save_model
 
 config = dotenv_values(".env")
-model_path, model_name = config.get("MODEL_PATH"), config.get("MODEL_NAME")
-if not model_path or not model_name:
-    raise FileNotFoundError
-
-model_file = join(model_path, f"{model_name}.keras")
-if not exists(model_file):
-    model = save_trained_model_to_file(model_path, model_name)
-else:
-    model = load_model(model_file)
+MODEL_PATH = config.get("MODEL_PATH")
+if not MODEL_PATH:
+    raise ValueError("MODEL_PATH is empty")
 
 
-# ! 这里保存训练过的模型再次加载会报错，原因未知
-# * 是 Python 3.12.0 的原因
-# * https://github.com/tensorflow/tensorflow/issues/63365
-print(model.summary())  # type: ignore
+def get_model_by_name(name: str):
+    model_file_path = join(MODEL_PATH, name)
+    if not exists(model_file_path):
+        return None, model_file_path
 
-test_images, test_labels = get_test_dataset()
-test_loss, test_accu = model.evaluate(test_images, test_labels)  # type: ignore
-print(test_loss, test_accu)
+    model = load_model(model_file_path)
+
+    return model, model_file_path
+
+
+if __name__ == "__main__":
+    # * CNN训练 DEMO
+    model_name = "cnn_demo.keras"
+    model, path = get_model_by_name(model_name)
+    if not model:
+        dataset = ic_dataset.get_dataset(category="train")
+        model, _ = ic_train(dataset, with_summary=False)
+        save_model(model, path)
+
+    dataset = ic_dataset.get_dataset(category="test")
+    acc, loss = evaluate_model(model, dataset)
+    print(f"CNN accuracy: {acc}, loss: {loss}")
+
+    # * RNN训练 DEMO
+    model_name = "rnn_demo.keras"
+    model, file_path = get_model_by_name(model_name)
+    if not model:
+        dataset = tc_dataset.get_dataset(category="train")
+        model, _ = tc_train(dataset, with_summary=False)
+        save_model(model, file_path)
+
+    dataset = tc_dataset.get_dataset(category="test")
+    acc, loss = evaluate_model(model, dataset)
+    print(f"RNN accuracy: {acc}, loss: {loss}")
