@@ -6,37 +6,32 @@ from numpy import float32, uint8
 from numpy.typing import NDArray
 
 
-def get_train_dataset() -> Tuple[NDArray, NDArray]:
-    """获取训练集数据和分类标签
+def get_dataset(category="train") -> Tuple[NDArray, NDArray]:
+    """根据类型获取模型数据集
+
+    Args:
+        - category (str, optional): 数据集类别. Defaults to "train".
 
     Returns:
-        Tuple[NDArray, NDArray]: 训练集和数据分类标签
+        - Tuple[NDArray, NDArray]: 训练集/测试集
     """
-    (train_images, train_labels), _ = mnist.load_data()
-    train_images: NDArray[uint8]
-    train_images: NDArray[float32] = (
-        train_images.reshape((60000, 28, 28, 1)).astype(float32) / 255
-    )
+    (train_x, train_y), (test_x, test_y) = mnist.load_data()
+    if category == "train":
+        train_x: NDArray[uint8]
+        train_x: NDArray[float32] = (
+            train_x.reshape((60000, 28, 28, 1)).astype(float32) / 255
+        )
 
-    train_labels = to_categorical(train_labels)
+        train_y = to_categorical(train_y)
 
-    return train_images, train_labels
+        return train_x, train_y
 
-
-def get_test_dataset() -> Tuple[NDArray, NDArray]:
-    """获取训练集数据和分类标签
-
-    Returns:
-        Tuple[NDArray, NDArray]: 测试集和数据分类标签
-    """
-    _, (test_images, test_labels) = mnist.load_data()
-
-    test_images: NDArray[uint8]
-    test_images: NDArray[float32] = (
-        test_images.reshape((10000, 28, 28, 1)).astype(float32) / 255
+    test_x: NDArray[uint8]
+    test_x: NDArray[float32] = (
+        test_x.reshape((10000, 28, 28, 1)).astype(float32) / 255
     )
 
     # * 3 将输入的分类标签转换为二分类的标签
-    test_labels = to_categorical(test_labels)
+    test_y = to_categorical(test_y)
 
-    return test_images, test_labels
+    return test_x, test_y

@@ -1,18 +1,23 @@
-from os.path import join
-
-from keras import Input, layers, models
-from keras.losses import CategoricalCrossentropy
-from keras.models import Model, Sequential
-from keras.optimizers import RMSprop
-
-from image_classification.datasets import get_train_dataset
+from keras import layers, losses, models, optimizers
 
 
-def get_compiled_model():
-    """获取编译好的模型"""
+def compile_and_train_model(dataset, with_summary=True):
+    """编译并训练 CNN 模型
+
+    该模型由
+    - 3个卷积层/最大池化层对作为卷积基，提取特征
+    - 2个全连接层作为顶层分类器，对结果进行分类
+
+    Args:
+        dataset (_type_): 训练数据集
+        with_summary (bool, optional): 是否在标准输出打印模型架构信息，默认输出.
+
+    Returns:
+        _type_: 模型和模型训练的历史数据
+    """
     model = models.Sequential(
         [
-            Input(shape=(28, 28, 1)),
+            layers.Input(shape=(28, 28, 1)),
             layers.Conv2D(32, (3, 3), activation="relu"),
             layers.MaxPool2D(pool_size=(2, 2)),
             layers.Conv2D(64, (3, 3), activation="relu"),
@@ -24,49 +29,21 @@ def get_compiled_model():
         ]
     )
 
+    if with_summary:
+        model.summary()
+
     model.compile(
-        optimizer=RMSprop(),
-        loss=CategoricalCrossentropy(),
+        optimizer=optimizers.RMSprop(),
+        loss=losses.CategoricalCrossentropy(),
         metrics=["accuracy"],
     )
 
-    return model
+    train_x, train_y = dataset
+    history = model.fit(
+        train_x,
+        train_y,
+        epochs=5,
+        batch_size=64,
+    )
 
-
-def train_model(model, dataset):
-    """利用数据集训练模型"""
-    train_data, train_labels = dataset
-    model.fit(train_data, train_labels, epochs=5, batch_size=64)
-
-    return model
-
-
-def get_trained_model():
-    model, dataset = get_compiled_model(), get_train_dataset()
-    model = train_model(model, dataset)
-
-    return model
-
-
-def save_trained_model_to_file(
-    path: str,
-    name: str,
-    overwrite=True,
-) -> Sequential | Model:
-    """保存训练好的模型到文件，默认保存为 .keras 压缩格式
-
-    Args:
-        - path (str): 文件路径
-        - name (str): 文件名
-        - overwrite (bool, optional): 是否覆盖同名模型文件，默认覆盖.
-
-    Returns:
-        - Sequential | Model: 训练好的模型
-    """
-    model, dataset = get_compiled_model(), get_train_dataset()
-    model = train_model(model, dataset)
-    file_path = join(path, f"{name}.keras")
-
-    model.save(file_path, overwrite=overwrite)
-
-    return model
+    return model, history
