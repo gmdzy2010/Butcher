@@ -47,6 +47,9 @@ line-length = 79
 indent-width = 4
 target-version = "py312"
 
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+
 [tool.ruff.lint]
 ignore = ["E741"]
 fixable = ["ALL"]
