@@ -3,10 +3,10 @@ from os.path import exists, join
 from dotenv import dotenv_values
 from keras.models import load_model
 
-from image_classification import datasets as ic_dataset
-from image_classification.models import compile_and_train_model as ic_train
-from text_classification import datasets as tc_dataset
-from text_classification.models import compile_and_train_model as tc_train
+from apps.image_classification import datasets as ic_dataset
+from apps.image_classification.models import train_model as ic_train
+from apps.text_classification import datasets as tc_dataset
+from apps.text_classification.models import train_model as tc_train
 from tools.model_dumper import evaluate_model, save_model
 
 config = dotenv_values(".env")
