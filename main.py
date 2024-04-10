@@ -7,7 +7,7 @@ from apps.image_classification import datasets as ic_dataset
 from apps.image_classification.models import train_model as ic_train
 from apps.text_classification import datasets as tc_dataset
 from apps.text_classification.models import train_model as tc_train
-from tools.model_dumper import evaluate_model, save_model
+from utils.exporter import evaluate_model, save_model
 
 config = dotenv_values(".env")
 MODEL_PATH = config.get("MODEL_PATH")
@@ -26,8 +26,8 @@ def get_model_by_name(name: str):
 
 
 if __name__ == "__main__":
-    # * CNN训练 DEMO
-    model_name = "cnn_demo.keras"
+    # * 图像分类，使用基于 CNN 构建的模型
+    model_name = "ic.keras"
     model, path = get_model_by_name(model_name)
     if not model:
         dataset = ic_dataset.get_dataset(category="train")
@@ -38,8 +38,8 @@ if __name__ == "__main__":
     acc, loss = evaluate_model(model, dataset)
     print(f"CNN accuracy: {acc}, loss: {loss}")
 
-    # * RNN训练 DEMO
-    model_name = "rnn_demo.keras"
+    # * 文本分类，使用基于 CNN 构建的模型
+    model_name = "tc.keras"
     model, file_path = get_model_by_name(model_name)
     if not model:
         dataset = tc_dataset.get_dataset(category="train")
@@ -48,4 +48,4 @@ if __name__ == "__main__":
 
     dataset = tc_dataset.get_dataset(category="test")
     acc, loss = evaluate_model(model, dataset)
-    print(f"RNN accuracy: {acc}, loss: {loss}")
+    print(f"CNN accuracy: {acc}, loss: {loss}")
