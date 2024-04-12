@@ -1,7 +1,15 @@
+from typing import Tuple
+
 from keras import layers, losses, models, optimizers
+from keras.callbacks import History
+from keras.models import Sequential
+from numpy.typing import NDArray
 
 
-def train_model(dataset, with_summary=True):
+def train_model(
+    dataset: Tuple[NDArray, NDArray],
+    with_summary=True,
+) -> Tuple[Sequential, History]:
     """编译并训练 CNN 模型
 
     该模型由
@@ -33,15 +41,15 @@ def train_model(dataset, with_summary=True):
         model.summary()
 
     model.compile(
-        optimizer=optimizers.RMSprop(),
+        optimizer=optimizers.RMSprop(),  # type: ignore
         loss=losses.CategoricalCrossentropy(),
         metrics=["accuracy"],
     )
 
     train_x, train_y = dataset
     history = model.fit(
-        train_x,
-        train_y,
+        x=train_x,
+        y=train_y,
         epochs=5,
         batch_size=64,
     )
